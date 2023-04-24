@@ -1,12 +1,27 @@
 use serde::{Deserialize, Serialize};
-use std::fs;
+use std::{env, fs, path, process};
 
 fn main() {
     let theme = theme();
     let classes = classes(theme);
-    let classes_json = serde_json::to_string_pretty(&classes).unwrap();
 
-    fs::write("classes.json", classes_json).unwrap();
+    write_json(&classes);
+    write_ts(&classes);
+}
+
+fn write_json(classes: &Classes) {
+    let mut d = env::current_dir().unwrap();
+    d.push("src/components/classes.json");
+    let classes_json = serde_json::to_string_pretty(&classes).unwrap();
+    fs::write(d, classes_json).unwrap();
+}
+
+fn write_ts(classes: &Classes) {
+    let mut d = env::current_dir().unwrap();
+    d.push("src/components/classes.ts");
+    let classes_json = serde_json::to_string_pretty(&classes).unwrap();
+    let ts = format!("export const classes = {classes_json}\n");
+    fs::write(d, ts).unwrap();
 }
 
 fn classes(theme: Theme) -> Classes {
